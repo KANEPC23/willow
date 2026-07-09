@@ -110,15 +110,21 @@
   tbody tr.clickable:hover{background:var(--panel-2)}
   .jobno{font-family:var(--mono);color:var(--brass);font-weight:500}
   .muted{color:var(--dim)}
+  .nm{color:#F4F7F1;font-weight:600;letter-spacing:-.005em}
+  .nm2{color:var(--text);font-weight:500}
+  .money{font-family:var(--mono);font-variant-numeric:tabular-nums;color:#6FC58C;font-weight:600}
+  .money.dim{color:#4E8C64;font-weight:500}
+  .exp{font-family:var(--mono);font-variant-numeric:tabular-nums;color:#E3A0A4}
+  .exp.due{color:#E8897A;font-weight:600}
   .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
-  .pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;letter-spacing:.005em}
   .pill .d{width:6px;height:6px;border-radius:50%}
-  .pill.green{background:rgba(95,179,122,.14);color:var(--green)}.pill.green .d{background:var(--green)}
-  .pill.amber{background:rgba(224,169,59,.14);color:var(--amber)}.pill.amber .d{background:var(--amber)}
-  .pill.red{background:rgba(224,122,95,.14);color:var(--red)}.pill.red .d{background:var(--red)}
-  .pill.blue{background:rgba(111,168,199,.14);color:var(--blue)}.pill.blue .d{background:var(--blue)}
-  .pill.grey{background:var(--panel-3);color:var(--dim)}.pill.grey .d{background:var(--dim)}
+  .pill.green{background:#DBE7D6;color:#274F38}.pill.green .d{background:#3E8F5D}
+  .pill.amber{background:#F1E5C6;color:#6C520F}.pill.amber .d{background:#C68A22}
+  .pill.red{background:#F1DBD1;color:#7C3824}.pill.red .d{background:#C85B3C}
+  .pill.blue{background:#DBE7EC;color:#2C5263}.pill.blue .d{background:#5B8AA6}
+  .pill.grey{background:#E4E7DE;color:#454F3E}.pill.grey .d{background:#7C8A73}
 
   .prog{height:6px;background:var(--panel-3);border-radius:4px;overflow:hidden;min-width:70px}
   .prog span{display:block;height:100%;background:var(--brass);border-radius:4px}
@@ -751,8 +757,8 @@ function pill(txt,cls){return `<span class="pill ${cls}"><span class="d"></span>
 /* ---------------- RENDER ---------------- */
 function jobRow(j,full){
   const base=`<td class="jobno">${j.no.slice(-4)}</td>`;
-  if(!full) return `<tr class="clickable" onclick="openJob('${j.no}')">${base}<td>${j.name}</td><td class="muted">${j.pm}</td><td>${pill(j.status,statusCls(j.status))}</td><td><div class="prog"><span style="width:${j.prog}%"></span></div></td><td class="num">${money(j.contract)}</td></tr>`;
-  return `<tr class="clickable" onclick="openJob('${j.no}')">${base}<td>${j.name}<div class="muted" style="font-size:11.5px">${j.site}</div></td><td class="muted">${j.cust}</td><td class="muted">${j.pm}</td><td>${pill(j.status,statusCls(j.status))}</td><td>${pill(j.coi,coiCls(j.coi))}</td><td><div class="prog"><span style="width:${j.prog}%"></span></div></td><td class="num">${money(j.contract)}</td><td class="num">${j.ar?money(j.ar):"—"}</td></tr>`;
+  if(!full) return `<tr class="clickable" onclick="openJob('${j.no}')">${base}<td class="nm">${j.name}</td><td class="muted">${j.pm}</td><td>${pill(j.status,statusCls(j.status))}</td><td><div class="prog"><span style="width:${j.prog}%"></span></div></td><td class="money">${money(j.contract)}</td></tr>`;
+  return `<tr class="clickable" onclick="openJob('${j.no}')">${base}<td><span class="nm">${j.name}</span><div class="muted" style="font-size:11.5px">${j.site}</div></td><td class="muted">${j.cust}</td><td class="muted">${j.pm}</td><td>${pill(j.status,statusCls(j.status))}</td><td>${pill(j.coi,coiCls(j.coi))}</td><td><div class="prog"><span style="width:${j.prog}%"></span></div></td><td class="money">${money(j.contract)}</td><td class="money dim">${j.ar?money(j.ar):"—"}</td></tr>`;
 }
 function renderDash(){
   $("#dash-jobs").innerHTML=JOBS.filter(j=>j.status==="In Progress").slice(0,5).map(j=>jobRow(j,false)).join("");
@@ -778,12 +784,12 @@ function renderJobs(){
   $("#jobs-body").innerHTML=list.map(j=>jobRow(j,true)).join("");
 }
 function renderPermits(){
-  $("#permits-attn").innerHTML=PERMITS.filter(p=>p.attn).map(p=>`<tr><td>${p.days==="DENIED"?pill("DENIED","red"):`<span class="pill amber"><span class="d"></span>${p.days}</span>`}</td><td><b>${p.type}</b> <span class="mono muted">${p.no}</span></td><td class="muted">${p.job}</td><td style="text-align:right"><button class="btn" style="padding:5px 12px">${p.days==="DENIED"?"Resubmit":"File Renewal"}</button></td></tr>`).join("");
-  $("#permits-body").innerHTML=PERMITS.map(p=>`<tr><td class="mono muted">${p.no}</td><td>${p.type}</td><td class="muted">${p.auth}</td><td class="muted">${p.job}</td><td>${pill(p.status,p.statusCls)}</td><td class="num muted">${p.expires}</td></tr>`).join("");
+  $("#permits-attn").innerHTML=PERMITS.filter(p=>p.attn).map(p=>`<tr><td>${p.days==="DENIED"?pill("DENIED","red"):`<span class="pill amber"><span class="d"></span>${p.days}</span>`}</td><td><b>${p.type}</b> <span class="jobno">${p.no}</span></td><td class="muted">${p.job}</td><td style="text-align:right"><button class="btn" style="padding:5px 12px">${p.days==="DENIED"?"Resubmit":"File Renewal"}</button></td></tr>`).join("");
+  $("#permits-body").innerHTML=PERMITS.map(p=>{const due=/Expiring|Denied|Resubmit/i.test(p.status+p.expires);return `<tr><td class="jobno">${p.no}</td><td class="nm2">${p.type}</td><td class="muted">${p.auth}</td><td class="muted">${p.job}</td><td>${pill(p.status,p.statusCls)}</td><td class="exp ${due?'due':''}">${p.expires}</td></tr>`}).join("");
   $("#rules-body").innerHTML=RULES.map((r,i)=>`<tr><td>${r.t}<div class="mono muted" style="font-size:10px">${r.tag}</div></td><td>${r.ch.map(c=>`<span class="ch">${c}</span>`).join("")}</td><td class="muted">${r.r}</td><td style="text-align:right"><div class="toggle ${r.on?'on':''}" onclick="this.classList.toggle('on')"></div></td></tr>`).join("");
 }
 function renderInsurance(){
-  $("#ins-body").innerHTML=INS.map(i=>`<tr><td class="jobno">${i.job}</td><td>${i.cust}</td><td class="muted">${i.carrier}</td><td class="num muted">${i.gl}</td><td>${pill(i.status,i.cls)}</td><td class="num muted">${i.exp}</td></tr>`).join("");
+  $("#ins-body").innerHTML=INS.map(i=>{const due=/Expiring|Missing|Never/i.test(i.status+i.exp);return `<tr><td class="jobno">${i.job}</td><td class="nm">${i.cust}</td><td class="muted">${i.carrier}</td><td class="money dim">${i.gl}</td><td>${pill(i.status,i.cls)}</td><td class="exp ${due?'due':''}">${i.exp}</td></tr>`}).join("");
 }
 function renderDocs(){
   $("#ba-gallery").innerHTML=PHOTOS.map(p=>`<div class="bapair"><div class="imgs"><div class="imwrap"><img src="https://images.unsplash.com/photo-${p.b}?w=400&q=60" alt="before"><b class="lab">Before</b></div><div class="imwrap"><img src="https://images.unsplash.com/photo-${p.a}?w=400&q=60" alt="after"><b class="lab">After</b></div></div><div class="cap">${p.job}<span>${p.pm}</span></div></div>`).join("");
@@ -798,22 +804,22 @@ function renderAR(){
   }).join("");
   const list=arFilter==="all"?AR:AR.filter(a=>a.tier===arFilter);
   $("#ar-count").textContent=arFilter==="all"?"All Invoices":`Tier · ${arFilter}`;
-  $("#ar-body").innerHTML=list.map(a=>`<tr class="clickable"><td class="mono muted">${a.inv}</td><td>${a.cust}</td><td class="jobno">${a.job}</td><td class="num muted">${a.age}</td><td>${pill(a.tier,a.cls)}</td><td class="num" style="font-weight:600">${money(a.bal)}</td></tr>`).join("");
+  $("#ar-body").innerHTML=list.map(a=>`<tr class="clickable"><td class="mono muted">${a.inv}</td><td class="nm">${a.cust}</td><td class="jobno">${a.job}</td><td class="num muted">${a.age}</td><td>${pill(a.tier,a.cls)}</td><td class="money">${money(a.bal)}</td></tr>`).join("");
 }
 function renderTasks(){
   $("#tasks-body").innerHTML=TASKS.map(t=>`<tr class="clickable"><td>${t.t}</td><td class="jobno">${t.job}</td><td class="muted">${t.owner}</td><td class="num muted">${t.due}</td><td>${pill(t.status,t.cls)}</td></tr>`).join("");
 }
 function renderCO(){
-  $("#co-body").innerHTML=CO.map(c=>`<tr class="clickable"><td class="mono muted">${c.no}</td><td class="jobno">${c.job}</td><td>${c.desc}</td><td>${pill(c.status,c.cls)}</td><td class="num" style="font-weight:600">${money(c.amt)}</td></tr>`).join("");
+  $("#co-body").innerHTML=CO.map(c=>`<tr class="clickable"><td class="mono muted">${c.no}</td><td class="jobno">${c.job}</td><td>${c.desc}</td><td>${pill(c.status,c.cls)}</td><td class="money">${money(c.amt)}</td></tr>`).join("");
 }
 function renderInbox(){
-  $("#inbox-body").innerHTML=INBOX.map(m=>`<tr class="clickable"><td style="width:34px">${m.unread?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--brass)"></span>':''}</td><td style="width:150px;font-weight:${m.unread?'700':'500'}">${m.from}</td><td><b style="font-weight:${m.unread?'700':'500'}">${m.subj}</b> <span class="muted">— ${m.prev}</span></td><td class="jobno" style="width:60px">${m.job}</td><td class="num muted" style="width:80px;text-align:right">${m.time}</td></tr>`).join("");
+  $("#inbox-body").innerHTML=INBOX.map(m=>`<tr class="clickable"><td style="width:34px">${m.unread?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--brass)"></span>':''}</td><td class="nm" style="width:150px">${m.from}</td><td><b style="font-weight:${m.unread?'700':'500'}">${m.subj}</b> <span class="muted">— ${m.prev}</span></td><td class="jobno" style="width:60px">${m.job}</td><td class="num muted" style="width:80px;text-align:right">${m.time}</td></tr>`).join("");
 }
 function renderPipeline(){
-  $("#bids-body").innerHTML=BIDS.map(b=>`<tr class="clickable"><td>${b.name}</td><td class="muted">${b.cust}</td><td>${pill(b.phase,b.cls)}</td><td class="num muted">${b.due}</td><td class="num" style="font-weight:600">${money(b.val)}</td></tr>`).join("");
+  $("#bids-body").innerHTML=BIDS.map(b=>`<tr class="clickable"><td class="nm">${b.name}</td><td class="nm2">${b.cust}</td><td>${pill(b.phase,b.cls)}</td><td class="num muted">${b.due}</td><td class="money">${money(b.val)}</td></tr>`).join("");
 }
 function renderSettings(){
-  $("#team-body").innerHTML=TEAM.map(t=>`<tr><td style="width:44px"><div class="avatar" style="width:30px;height:30px;font-size:11px">${t.init}</div></td><td><b>${t.n}</b></td><td class="muted" style="text-align:right">${t.role}</td></tr>`).join("");
+  $("#team-body").innerHTML=TEAM.map(t=>`<tr><td style="width:44px"><div class="avatar" style="width:30px;height:30px;font-size:11px">${t.init}</div></td><td><span class="nm">${t.n}</span></td><td class="muted" style="text-align:right">${t.role}</td></tr>`).join("");
   const ints=[["SharePoint","Connected","green"],["QuickBooks","Connected · CSV weekly","green"],["Microsoft 365","Connected","green"],["Procore","Migrating · commercial bids","amber"],["Cloudflare DNS","Connected","green"]];
   $("#int-body").innerHTML=ints.map(i=>`<tr><td><b>${i[0]}</b></td><td style="text-align:right">${pill(i[1],i[2])}</td></tr>`).join("");
 }
