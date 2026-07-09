@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Willowfield Operations Portal — Demo</title>
+<meta name="theme-color" content="#0E1B14">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1B14;--panel:#122318;--panel-2:#16291D;--panel-3:#1B3123;
+    --line:rgba(200,214,190,.10);--line-2:rgba(200,214,190,.16);
+    --text:#E7EDE3;--dim:#93A48C;--dimmer:#6B7C66;
+    --brass:#C29A56;--brass-dim:#A87D3F;
+    --green:#5FB37A;--amber:#E0A93B;--red:#E07A5F;--blue:#6FA8C7;
+    --display:"Fraunces",Georgia,serif;--body:"Hanken Grotesk",system-ui,sans-serif;--mono:"IBM Plex Mono",monospace;
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  body{font-family:var(--body);background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased;overflow:hidden}
+  a{color:inherit;text-decoration:none}
+  ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:5px}
+  .mono{font-family:var(--mono)}
+  .app{display:grid;grid-template-columns:248px 1fr;height:100vh}
+
+  /* SIDEBAR */
+  .side{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+  .side-brand{padding:20px 20px 18px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--line)}
+  .side-brand svg{width:30px;height:30px;flex:0 0 auto}
+  .side-brand .nm{font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:.02em}
+  .side-brand .nm b{color:var(--brass)}
+  .side-brand .sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--dimmer);text-transform:uppercase;margin-top:2px}
+  .side-scroll{flex:1;overflow-y:auto;padding:14px 12px}
+  .navgrp{margin-bottom:16px}
+  .navgrp .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dimmer);padding:6px 10px}
+  .navitem{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:6px;color:var(--dim);cursor:pointer;font-weight:500;font-size:13.5px;transition:background .15s,color .15s;position:relative}
+  .navitem:hover{background:var(--panel-2);color:var(--text)}
+  .navitem.active{background:var(--panel-3);color:var(--text)}
+  .navitem.active::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;background:var(--brass);border-radius:0 3px 3px 0}
+  .navitem svg{width:17px;height:17px;stroke:currentColor;stroke-width:1.6;fill:none;flex:0 0 auto}
+  .navitem .badge{margin-left:auto;background:var(--panel-3);color:var(--dim);font-size:11px;font-weight:600;padding:1px 8px;border-radius:20px;font-family:var(--mono)}
+  .navitem.active .badge{background:var(--brass);color:#0E1B14}
+  .side-foot{border-top:1px solid var(--line);padding:14px 16px}
+  .integrations{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer);margin-bottom:10px}
+  .intgrid{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:10.5px;padding:3px 8px;border-radius:5px;background:var(--panel-2);border:1px solid var(--line);color:var(--dim);display:flex;align-items:center;gap:5px}
+  .chip .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+  .chip.mig .dot{background:var(--amber)}
+  .poweredby{margin-top:14px;font-size:11px;color:var(--dimmer)}
+  .poweredby b{color:var(--dim)}
+
+  /* MAIN */
+  .main{display:flex;flex-direction:column;overflow:hidden}
+  .topbar{height:60px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 26px;gap:18px;background:var(--panel);flex:0 0 auto}
+  .crumb{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--dim)}
+  .crumb b{color:var(--text);font-weight:500}
+  .topbar .spacer{flex:1}
+  .ai-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(120deg,var(--panel-3),var(--panel-2));border:1px solid var(--line-2);color:var(--text);padding:8px 14px;border-radius:7px;cursor:pointer;font-weight:600;font-size:13px}
+  .ai-btn:hover{border-color:var(--brass-dim)}
+  .ai-btn .spark{color:var(--brass)}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--panel-3);border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--brass);font-size:13px}
+  .demo-banner{background:rgba(194,154,86,.1);border-bottom:1px solid rgba(194,154,86,.22);color:var(--brass);padding:8px 26px;font-size:12.5px;font-family:var(--mono);letter-spacing:.03em;flex:0 0 auto}
+  .demo-banner b{color:var(--brass)}
+  .content{flex:1;overflow-y:auto;padding:28px 26px 60px}
+  .view{display:none;animation:fade .3s ease}
+  .view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:22px;flex-wrap:wrap}
+  .page-head h1{font-family:var(--display);font-size:27px;font-weight:600}
+  .page-head .desc{color:var(--dim);font-size:13.5px;margin-top:4px}
+  .page-actions{display:flex;gap:10px}
+  .btn{font-family:var(--body);font-weight:600;font-size:13px;padding:9px 16px;border-radius:6px;cursor:pointer;border:1px solid var(--line-2);background:var(--panel-2);color:var(--text);transition:background .15s,border-color .15s;display:inline-flex;gap:7px;align-items:center}
+  .btn:hover{background:var(--panel-3)}
+  .btn.primary{background:var(--brass);color:#0E1B14;border-color:var(--brass)}
+  .btn.primary:hover{background:#d3a862}
+  .btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none}
+
+  /* KPI CARDS */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+  .kpi .k-lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+  .kpi .k-val{font-family:var(--display);font-size:30px;font-weight:600;margin:8px 0 4px}
+  .kpi .k-sub{font-size:12px;color:var(--dimmer)}
+  .kpi .k-sub.up{color:var(--green)}.kpi .k-sub.warn{color:var(--amber)}.kpi .k-sub.bad{color:var(--red)}
+  @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+  .grid2{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;margin-bottom:18px}
+  .grid2.even{grid-template-columns:1fr 1fr}
+  @media(max-width:1100px){.grid2,.grid2.even{grid-template-columns:1fr}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .card-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .card-head h3{font-size:15px;font-weight:600}
+  .card-head .hint{font-size:12px;color:var(--dimmer)}
+  .card-head a.more{font-size:12px;color:var(--brass);font-weight:600}
+  .card-body{padding:18px 20px}
+  .card-body.flush{padding:0}
+
+  /* TABLES */
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:500;padding:11px 20px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+  td{padding:13px 20px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}
+  tr:last-child td{border-bottom:0}
+  tbody tr{cursor:default;transition:background .12s}
+  tbody tr.clickable{cursor:pointer}
+  tbody tr.clickable:hover{background:var(--panel-2)}
+  .jobno{font-family:var(--mono);color:var(--brass);font-weight:500}
+  .muted{color:var(--dim)}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap}
+  .pill .d{width:6px;height:6px;border-radius:50%}
+  .pill.green{background:rgba(95,179,122,.14);color:var(--green)}.pill.green .d{background:var(--green)}
+  .pill.amber{background:rgba(224,169,59,.14);color:var(--amber)}.pill.amber .d{background:var(--amber)}
+  .pill.red{background:rgba(224,122,95,.14);color:var(--red)}.pill.red .d{background:var(--red)}
+  .pill.blue{background:rgba(111,168,199,.14);color:var(--blue)}.pill.blue .d{background:var(--blue)}
+  .pill.grey{background:var(--panel-3);color:var(--dim)}.pill.grey .d{background:var(--dim)}
+
+  .prog{height:6px;background:var(--panel-3);border-radius:4px;overflow:hidden;min-width:70px}
+  .prog span{display:block;height:100%;background:var(--brass);border-radius:4px}
+
+  /* FILTER TABS */
+  .ftabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .ftab{font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:6px;cursor:pointer;color:var(--dim);border:1px solid transparent}
+  .ftab:hover{color:var(--text)}
+  .ftab.active{background:var(--panel-2);color:var(--text);border-color:var(--line-2)}
+
+  /* PIPELINE */
+  .pipe{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+  .pstage{background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:14px 12px;text-align:center}
+  .pstage .pn{font-family:var(--mono);font-size:10px;color:var(--dimmer)}
+  .pstage .pc{font-family:var(--display);font-size:26px;font-weight:600;margin:4px 0}
+  .pstage .pt{font-size:11px;color:var(--dim)}
+  .pstage .src{font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--brass-dim);text-transform:uppercase;margin-top:6px}
+  @media(max-width:900px){.pipe{grid-template-columns:repeat(3,1fr)}}
+
+  /* ACTIVITY */
+  .act{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;gap:14px}
+  .act:last-child{border-bottom:0}
+  .act .t{font-family:var(--mono);font-size:10.5px;color:var(--dimmer);width:96px;flex:0 0 auto;padding-top:2px}
+  .act .b .a-t{font-weight:600;font-size:13px}
+  .act .b .a-d{font-size:12.5px;color:var(--dim);margin-top:2px}
+  .act .ic{width:8px;height:8px;border-radius:50%;margin-top:6px;flex:0 0 auto}
+
+  /* INTEGRATIONS ROW */
+  .intcards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .intcard{background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:16px}
+  .intcard .ihd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .intcard .iname{font-weight:600;font-size:14px}
+  .intcard p{font-size:12px;color:var(--dim);line-height:1.5}
+  @media(max-width:900px){.intcards{grid-template-columns:1fr}}
+
+  /* BEFORE AFTER GALLERY */
+  .baset{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:1000px){.baset{grid-template-columns:1fr 1fr}}@media(max-width:640px){.baset{grid-template-columns:1fr}}
+  .bapair .imgs{display:grid;grid-template-columns:1fr 1fr;gap:3px;border-radius:7px;overflow:hidden}
+  .bapair img{width:100%;height:120px;object-fit:cover}
+  .bapair .cap{margin-top:8px;font-size:12.5px;font-weight:600}
+  .bapair .cap span{display:block;font-family:var(--mono);font-size:10px;color:var(--brass-dim);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+  .imwrap{position:relative}.imwrap b.lab{position:absolute;top:6px;left:6px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;background:rgba(14,27,20,.75);padding:2px 6px;border-radius:3px;color:var(--text);font-weight:400;text-transform:uppercase}
+
+  /* ALERT RULES TABLE */
+  .rules td .ch{display:inline-block;font-family:var(--mono);font-size:9.5px;padding:2px 6px;border-radius:4px;background:var(--panel-3);color:var(--dim);margin-right:4px;letter-spacing:.04em}
+  .toggle{width:34px;height:19px;border-radius:20px;background:var(--panel-3);position:relative;cursor:pointer;border:1px solid var(--line-2)}
+  .toggle.on{background:var(--brass)}
+  .toggle::after{content:"";position:absolute;top:1px;left:1px;width:15px;height:15px;border-radius:50%;background:#fff;transition:left .18s}
+  .toggle.on::after{left:16px}
+
+  /* AI PANEL */
+  .ai-panel{position:fixed;top:0;right:0;bottom:0;width:400px;background:var(--panel);border-left:1px solid var(--line-2);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s ease;z-index:60;box-shadow:-20px 0 50px rgba(0,0,0,.4)}
+  .ai-panel.open{transform:none}
+  .ai-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+  .ai-head .spark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--brass),var(--brass-dim));display:flex;align-items:center;justify-content:center;color:#0E1B14;font-weight:800}
+  .ai-head h3{font-size:15px;font-weight:600}
+  .ai-head .st{font-size:11px;color:var(--green);display:flex;align-items:center;gap:5px}
+  .ai-head .st .d{width:6px;height:6px;border-radius:50%;background:var(--green)}
+  .ai-head .x{margin-left:auto;cursor:pointer;color:var(--dim);font-size:20px;line-height:1}
+  .ai-log{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+  .msg{max-width:88%;padding:11px 14px;border-radius:12px;font-size:13px;line-height:1.55}
+  .msg.bot{background:var(--panel-2);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
+  .msg.user{background:var(--brass);color:#0E1B14;align-self:flex-end;border-bottom-right-radius:4px;font-weight:500}
+  .msg .cite{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-family:var(--mono);font-size:10.5px;color:var(--brass-dim);letter-spacing:.03em}
+  .ai-sugg{padding:0 20px 12px;display:flex;flex-direction:column;gap:7px}
+  .ai-sugg .s{font-size:12.5px;color:var(--dim);background:var(--panel-2);border:1px solid var(--line);padding:9px 12px;border-radius:8px;cursor:pointer;text-align:left}
+  .ai-sugg .s:hover{border-color:var(--brass-dim);color:var(--text)}
+  .ai-in{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:8px}
+  .ai-in input{flex:1;background:var(--panel-2);border:1px solid var(--line-2);color:var(--text);padding:11px 13px;border-radius:8px;font-family:var(--body);font-size:13px}
+  .ai-in input:focus{outline:none;border-color:var(--brass-dim)}
+  .ai-in button{background:var(--brass);color:#0E1B14;border:0;border-radius:8px;width:42px;cursor:pointer;font-size:16px}
+  .ai-foot{padding:9px 20px 14px;font-size:10.5px;color:var(--dimmer);text-align:center}
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:55;display:none}
+  .scrim.on{display:block}
+
+  /* JOB MODAL */
+  .modal{position:fixed;inset:0;z-index:70;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;background:rgba(6,12,9,.6)}
+  .modal.on{display:flex}
+  .sheet{background:var(--panel);border:1px solid var(--line-2);border-radius:12px;max-width:820px;width:100%;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+  .sheet-head{padding:22px 26px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start}
+  .sheet-head h2{font-family:var(--display);font-size:22px;font-weight:600}
+  .sheet-head .sub{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:4px}
+  .sheet-head .x{cursor:pointer;color:var(--dim);font-size:24px;line-height:1}
+  .sheet-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+  .sheet-kpis .k{background:var(--panel);padding:16px 20px}
+  .sheet-kpis .k .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  .sheet-kpis .k .v{font-family:var(--display);font-size:20px;font-weight:600;margin-top:5px}
+  .sheet-body{padding:22px 26px;display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  .sheet-body h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin-bottom:12px}
+  .dl{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .dl:last-child{border-bottom:0}.dl .k{color:var(--dim)}
+  @media(max-width:680px){.sheet-body{grid-template-columns:1fr}.sheet-kpis{grid-template-columns:1fr 1fr}}
+
+  .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:900px){.settings-grid{grid-template-columns:1fr}}
+  .empty{padding:44px;text-align:center;color:var(--dim)}
+  .empty svg{width:36px;height:36px;stroke:var(--dimmer);stroke-width:1.4;fill:none;margin-bottom:12px}
+
+  @media(max-width:820px){
+    .app{grid-template-columns:1fr}
+    .side{display:none}
+    .kpis{grid-template-columns:1fr 1fr}
+    .ai-panel{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="side">
+    <div class="side-brand">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <path d="M20 3 C20 16, 10 20, 6 34 C16 30, 20 22, 20 14 C20 22, 24 30, 34 34 C30 20, 20 16, 20 3 Z" fill="#C29A56"/>
+        <line x1="20" y1="14" x2="20" y2="37" stroke="#E7EDE3" stroke-width="1.4"/>
+      </svg>
+      <div>
+        <div class="nm">WILLOW<b>FIELD</b></div>
+        <div class="sub">Operations Portal</div>
+      </div>
+    </div>
+    <div class="side-scroll">
+      <div class="navgrp">
+        <div class="lbl">Workspace</div>
+        <div class="navitem active" data-view="dashboard"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</div>
+        <div class="navitem" data-view="jobs"><svg viewBox="0 0 24 24"><path d="M3 21V8l9-5 9 5v13M9 21v-6h6v6"/></svg>Active Jobs<span class="badge">9</span></div>
+        <div class="navitem" data-view="permits"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M12 3l7 4v5c0 5-3 8-7 9-4-1-7-4-7-9V7z"/></svg>Permits<span class="badge">3</span></div>
+        <div class="navitem" data-view="insurance"><svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 5-3 8-7 9-4-1-7-4-7-9V7z"/></svg>Insurance<span class="badge">2</span></div>
+        <div class="navitem" data-view="docs"><svg viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9zM13 2v7h7"/></svg>Documents</div>
+        <div class="navitem" data-view="receivables"><svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>Receivables</div>
+      </div>
+      <div class="navgrp">
+        <div class="lbl">Delivery</div>
+        <div class="navitem" data-view="tasks"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8M4 12v6a2 2 0 002 2h12"/></svg>Tasks<span class="badge">11</span></div>
+        <div class="navitem" data-view="changeorders"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Change Orders<span class="badge">5</span></div>
+        <div class="navitem" data-view="inbox"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg>Project Inbox<span class="badge">4</span></div>
+      </div>
+      <div class="navgrp">
+        <div class="lbl">Bid &amp; Award</div>
+        <div class="navitem" data-view="pipeline"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M8 15l3-4 3 2 4-6"/></svg>Bid Pipeline</div>
+        <div class="navitem" data-view="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 00-1.7-1L14.5 2h-4l-.3 2.5a7 7 0 00-1.7 1l-2.4-1-2 3.5L4.1 11a7 7 0 000 2l-2 1.5 2 3.5 2.4-1a7 7 0 001.7 1l.3 2.5h4l.3-2.5a7 7 0 001.7-1l2.4 1 2-3.5-2-1.5c.1-.3.1-.7.1-1z"/></svg>Settings</div>
+      </div>
+    </div>
+    <div class="side-foot">
+      <div class="integrations">Connected</div>
+      <div class="intgrid">
+        <span class="chip"><span class="dot"></span>SharePoint</span>
+        <span class="chip"><span class="dot"></span>QuickBooks</span>
+        <span class="chip"><span class="dot"></span>M365</span>
+        <span class="chip mig"><span class="dot"></span>Procore</span>
+      </div>
+      <div class="poweredby">Powered by <b>Kane PC</b> · v1.0 · Demo</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb">Willowfield · <b id="crumb">Dashboard</b></div>
+      <div class="spacer"></div>
+      <button class="ai-btn" onclick="toggleAI(true)"><span class="spark">✦</span> Ask Willowfield AI</button>
+      <div class="avatar">MR</div>
+    </div>
+    <div class="demo-banner"><b>DEMO BUILD</b> — Sample data only. Built for Willowfield Construction Services by Kane PC. Click any job row to open the project detail view.</div>
+
+    <div class="content">
+
+      <!-- ============ DASHBOARD ============ -->
+      <div class="view on" id="v-dashboard">
+        <div class="page-head">
+          <div>
+            <h1>Operations Dashboard</h1>
+            <div class="desc">Snapshot for Tuesday, July 8, 2026 · updated 3 min ago</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Export PDF</button>
+            <button class="btn primary"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New Job</button>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi"><div class="k-lbl">Active Jobs</div><div class="k-val">9</div><div class="k-sub up">+2 vs last month</div></div>
+          <div class="kpi"><div class="k-lbl">Open Permits</div><div class="k-val">11</div><div class="k-sub warn">3 need attention</div></div>
+          <div class="kpi"><div class="k-lbl">A/R Outstanding</div><div class="k-val">$284,410</div><div class="k-sub up">+$19k vs last week</div></div>
+          <div class="kpi"><div class="k-lbl">Past Due 60+</div><div class="k-val">$52,600</div><div class="k-sub bad">3 customers</div></div>
+        </div>
+
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-head"><h3>Bid Pipeline</h3><a class="more" onclick="go('pipeline')">Open bid lifecycle →</a></div>
+          <div class="card-body">
+            <div class="pipe">
+              <div class="pstage"><div class="pn">1</div><div class="pc">4</div><div class="pt">Bidding</div><div class="src">Procore + SP</div></div>
+              <div class="pstage"><div class="pn">2</div><div class="pc">3</div><div class="pt">Submitted</div><div class="src">Procore</div></div>
+              <div class="pstage"><div class="pn">3</div><div class="pc">2</div><div class="pt">Awarded</div><div class="src">SharePoint</div></div>
+              <div class="pstage"><div class="pn">4</div><div class="pc">9</div><div class="pt">Active</div><div class="src">SharePoint</div></div>
+              <div class="pstage"><div class="pn">5</div><div class="pc">3</div><div class="pt">Closeout</div><div class="src">SharePoint</div></div>
+              <div class="pstage"><div class="pn">6</div><div class="pc">—</div><div class="pt">Archive</div><div class="src">SharePoint</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-head"><h3>Connects with the tools you already run</h3><div class="hint">The portal is the layer in the middle — it ties your stack together, it doesn't replace it</div></div>
+          <div class="card-body">
+            <div class="intcards">
+              <div class="intcard"><div class="ihd"><span class="iname">Procore</span><span class="pill amber"><span class="d"></span>Migrating</span></div><p>Commercial bid invitations &amp; drawings sync in; completed bids push back out.</p></div>
+              <div class="intcard"><div class="ihd"><span class="iname">QuickBooks</span><span class="pill green"><span class="d"></span>Connected</span></div><p>Weekly CSV in → A/R aging by job, customer &amp; age bucket. No API needed.</p></div>
+              <div class="intcard"><div class="ihd"><span class="iname">SharePoint</span><span class="pill green"><span class="d"></span>Connected</span></div><p>Every file lands in the right job folder, named to the Willowfield standard, path-safe.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="card-head"><h3>Active Jobs · This Week</h3><a class="more" onclick="go('jobs')">View all →</a></div>
+            <div class="card-body flush">
+              <table><thead><tr><th>Job #</th><th>Project</th><th>PM</th><th>Status</th><th>Progress</th><th>Contract</th></tr></thead>
+              <tbody id="dash-jobs"></tbody></table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>A/R Aging</h3><a class="more" onclick="go('receivables')">Open →</a></div>
+            <div class="card-body">
+              <div style="text-align:center;padding:6px 0 16px">
+                <div style="font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase">Total Outstanding</div>
+                <div style="font-family:var(--display);font-size:34px;font-weight:600;margin-top:6px">$284,410</div>
+                <div style="font-size:12px;color:var(--dim);margin-top:2px">DSO 38 days</div>
+              </div>
+              <div id="dash-aging"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid2 even">
+          <div class="card">
+            <div class="card-head"><h3>Permits Requiring Attention</h3><a class="more" onclick="go('permits')">All permits →</a></div>
+            <div class="card-body flush"><table><tbody id="dash-permits"></tbody></table></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Recent Activity</h3><div class="hint">Last 48 hours</div></div>
+            <div class="card-body flush" id="dash-activity"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ JOBS ============ -->
+      <div class="view" id="v-jobs">
+        <div class="page-head">
+          <div><h1>Active Jobs</h1><div class="desc">All projects in flight · 9 active · 2 pending start · 3 closing out</div></div>
+          <div class="page-actions"><button class="btn"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Export</button><button class="btn primary"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New Job</button></div>
+        </div>
+        <div class="ftabs" data-filter="jobs">
+          <div class="ftab active" data-f="all">All</div>
+          <div class="ftab" data-f="In Progress">In Progress</div>
+          <div class="ftab" data-f="Awaiting Permit">Awaiting Permit</div>
+          <div class="ftab" data-f="On Hold">On Hold</div>
+          <div class="ftab" data-f="Closing Out">Closing Out</div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3 id="jobs-count">9 jobs · $4.31M total contract</h3><div class="hint">Click a row for full project detail</div></div>
+          <div class="card-body flush"><table><thead><tr><th>Job #</th><th>Project / Site</th><th>Customer</th><th>PM</th><th>Status</th><th>COI</th><th>Progress</th><th>Contract</th><th>A/R</th></tr></thead><tbody id="jobs-body"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ============ PERMITS ============ -->
+      <div class="view" id="v-permits">
+        <div class="page-head">
+          <div><h1>Permits</h1><div class="desc">NYC DOB · Westchester County · Yonkers &amp; local building depts · 11 open · 3 require attention</div></div>
+          <div class="page-actions"><button class="btn">Export</button><button class="btn primary">File New Permit</button></div>
+        </div>
+        <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+          <div class="kpi"><div class="k-lbl">Filed / In Review</div><div class="k-val">4</div><div class="k-sub">Awaiting plan review</div></div>
+          <div class="kpi"><div class="k-lbl">Active / Issued</div><div class="k-val">4</div><div class="k-sub up">In good standing</div></div>
+          <div class="kpi"><div class="k-lbl">Attention</div><div class="k-val">3</div><div class="k-sub bad">Expiring or denied</div></div>
+        </div>
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-head"><h3>Requires immediate attention</h3></div>
+          <div class="card-body flush"><table><tbody id="permits-attn"></tbody></table></div>
+        </div>
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-head"><h3>All Permits</h3></div>
+          <div class="card-body flush"><table><thead><tr><th>Permit #</th><th>Type</th><th>Authority</th><th>Job</th><th>Status</th><th>Expires</th></tr></thead><tbody id="permits-body"></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Permit Alert Rules</h3><div class="hint">When to notify and how · per-permit overrides available</div></div>
+          <div class="card-body flush"><table class="rules"><thead><tr><th>Trigger</th><th>Channels</th><th>Recipients</th><th style="text-align:right">On</th></tr></thead><tbody id="rules-body"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ============ INSURANCE ============ -->
+      <div class="view" id="v-insurance">
+        <div class="page-head"><div><h1>Insurance Tracker</h1><div class="desc">COI status per active job · 9 jobs tracked</div></div><div class="page-actions"><button class="btn">Export COIs</button><button class="btn primary">Request COI</button></div></div>
+        <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+          <div class="kpi"><div class="k-lbl">Active &amp; Current</div><div class="k-val">6</div><div class="k-sub up">Coverage in good standing</div></div>
+          <div class="kpi"><div class="k-lbl">Expiring (30 days)</div><div class="k-val">2</div><div class="k-sub warn">Park Ave · New Rochelle</div></div>
+          <div class="kpi"><div class="k-lbl">Missing / Expired</div><div class="k-val">1</div><div class="k-sub bad">Greenwich — never received</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Certificates of Insurance</h3></div>
+          <div class="card-body flush"><table><thead><tr><th>Job</th><th>Customer</th><th>Carrier</th><th>GL Limit</th><th>Status</th><th>Expires</th></tr></thead><tbody id="ins-body"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ============ DOCUMENTS / PHOTOS ============ -->
+      <div class="view" id="v-docs">
+        <div class="page-head"><div><h1>Documents &amp; Site Photos</h1><div class="desc">612 files · 208 site photos · live SharePoint sync · field crew photos land here automatically</div></div><div class="page-actions"><button class="btn">Open in SharePoint</button><button class="btn primary">Upload File</button></div></div>
+        <div class="kpis">
+          <div class="kpi"><div class="k-lbl">Drawings &amp; Plans</div><div class="k-val">164</div><div class="k-sub">DWG, PDF · across 9 jobs</div></div>
+          <div class="kpi"><div class="k-lbl">Site Photos</div><div class="k-val">208</div><div class="k-sub up">Last 7 days: +38</div></div>
+          <div class="kpi"><div class="k-lbl">Pending Review</div><div class="k-val">7</div><div class="k-sub">Submittals &amp; change orders</div></div>
+          <div class="kpi"><div class="k-lbl">COIs Expiring</div><div class="k-val">2</div><div class="k-sub warn">Within 30 days</div></div>
+        </div>
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-head"><h3>Field Capture · Before → After, straight from the crew's phone</h3><div class="hint">GPS &amp; timestamp embedded · paired to the job automatically</div></div>
+          <div class="card-body">
+            <div class="baset" id="ba-gallery"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Recent Documents</h3><div class="hint">Latest from SharePoint</div></div>
+          <div class="card-body flush"><table><thead><tr><th>Name</th><th>Category</th><th>Job</th><th>Modified</th><th>Size</th></tr></thead><tbody id="docs-body"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ============ RECEIVABLES ============ -->
+      <div class="view" id="v-receivables">
+        <div class="page-head"><div><h1>Receivables</h1><div class="desc">A/R aging by tier · click a tier to filter · last QuickBooks sync 2 days ago</div></div><div class="page-actions"><button class="btn">Export A/R</button><button class="btn primary">Upload QB Report</button></div></div>
+        <div class="kpis" style="grid-template-columns:repeat(5,1fr)" id="ar-tiers"></div>
+        <div class="card">
+          <div class="card-head"><h3 id="ar-count">All Invoices</h3><div class="hint">$284,410 outstanding</div></div>
+          <div class="card-body flush"><table><thead><tr><th>Invoice</th><th>Customer</th><th>Job</th><th>Age</th><th>Tier</th><th>Balance</th></tr></thead><tbody id="ar-body"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ============ TASKS ============ -->
+      <div class="view" id="v-tasks">
+        <div class="page-head"><div><h1>Tasks</h1><div class="desc">Native to the portal · 11 open across 7 jobs · field photos sync to SharePoint</div></div><div class="page-actions"><button class="btn primary">New Task</button></div></div>
+        <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+          <div class="kpi"><div class="k-lbl">In Progress</div><div class="k-val">6</div><div class="k-sub">Active across team</div></div>
+          <div class="kpi"><div class="k-lbl">Due This Week / Overdue</div><div class="k-val">5</div><div class="k-sub warn">2 overdue</div></div>
+          <div class="kpi"><div class="k-lbl">Completed (7 days)</div><div class="k-val">12</div><div class="k-sub up">Across active jobs</div></div>
+        </div>
+        <div class="card"><div class="card-head"><h3>Open Tasks</h3></div><div class="card-body flush"><table><thead><tr><th>Task</th><th>Job</th><th>Owner</th><th>Due</th><th>Status</th></tr></thead><tbody id="tasks-body"></tbody></table></div></div>
+      </div>
+
+      <!-- ============ CHANGE ORDERS ============ -->
+      <div class="view" id="v-changeorders">
+        <div class="page-head"><div><h1>Change Orders</h1><div class="desc">Every CO from draft to executed · running contract math per job</div></div><div class="page-actions"><button class="btn primary">New Change Order</button></div></div>
+        <div class="kpis">
+          <div class="kpi"><div class="k-lbl">Original Contracts</div><div class="k-val">$4.31M</div><div class="k-sub">across active jobs</div></div>
+          <div class="kpi"><div class="k-lbl">+ Approved COs</div><div class="k-val">$186k</div><div class="k-sub up">4 executed</div></div>
+          <div class="kpi"><div class="k-lbl">Pending COs</div><div class="k-val">$74k</div><div class="k-sub warn">1 awaiting approval</div></div>
+          <div class="kpi"><div class="k-lbl">Current Contract Value</div><div class="k-val">$4.50M</div><div class="k-sub">original + approved</div></div>
+        </div>
+        <div class="card"><div class="card-head"><h3>Change Orders</h3></div><div class="card-body flush"><table><thead><tr><th>CO #</th><th>Job</th><th>Description</th><th>Status</th><th>Amount</th></tr></thead><tbody id="co-body"></tbody></table></div></div>
+      </div>
+
+      <!-- ============ INBOX ============ -->
+      <div class="view" id="v-inbox">
+        <div class="page-head"><div><h1>Project Inbox</h1><div class="desc">projects@willowfd.com · shared mailbox · everyone with portal access can see</div></div><div class="page-actions"><button class="btn">Sync Now</button><button class="btn primary">Compose</button></div></div>
+        <div class="card"><div class="card-head"><h3>Inbox</h3><div class="hint">4 unread · tagged to jobs</div></div><div class="card-body flush"><table><tbody id="inbox-body"></tbody></table></div></div>
+      </div>
+
+      <!-- ============ PIPELINE ============ -->
+      <div class="view" id="v-pipeline">
+        <div class="page-head"><div><h1>Bid Lifecycle</h1><div class="desc">The bridge between Procore (where commercial bids arrive) and SharePoint (where files live)</div></div><div class="page-actions"><button class="btn">Sync Procore</button><button class="btn primary">Upload Bid Package</button></div></div>
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-head"><h3>Job Lifecycle — Six Phases</h3><div class="hint">A job folder moves through these phases; the structure inside never changes</div></div>
+          <div class="card-body"><div class="pipe">
+            <div class="pstage"><div class="pn">1</div><div class="pc">4</div><div class="pt">Bidding</div><div class="src">Procore + SP</div></div>
+            <div class="pstage"><div class="pn">2</div><div class="pc">3</div><div class="pt">Submitted</div><div class="src">Procore</div></div>
+            <div class="pstage"><div class="pn">3</div><div class="pc">2</div><div class="pt">Awarded</div><div class="src">SharePoint</div></div>
+            <div class="pstage"><div class="pn">4</div><div class="pc">9</div><div class="pt">Active</div><div class="src">SharePoint</div></div>
+            <div class="pstage"><div class="pn">5</div><div class="pc">3</div><div class="pt">Closeout</div><div class="src">SharePoint</div></div>
+            <div class="pstage"><div class="pn">6</div><div class="pc">—</div><div class="pt">Archive</div><div class="src">SharePoint</div></div>
+          </div></div>
+        </div>
+        <div class="card"><div class="card-head"><h3>Bids in Pursuit</h3></div><div class="card-body flush"><table><thead><tr><th>Bid / Project</th><th>Customer</th><th>Phase</th><th>Bid Due</th><th>Est. Value</th></tr></thead><tbody id="bids-body"></tbody></table></div></div>
+      </div>
+
+      <!-- ============ SETTINGS ============ -->
+      <div class="view" id="v-settings">
+        <div class="page-head"><div><h1>Settings</h1><div class="desc">Company standards, integrations and access · Willowfield Construction Services</div></div></div>
+        <div class="settings-grid">
+          <div class="card"><div class="card-head"><h3>File Naming Standard</h3></div><div class="card-body">
+            <p style="color:var(--dim);font-size:13px;margin-bottom:14px">Every file uses this pattern. Job # always first; address never in the filename.</p>
+            <div style="background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:14px;font-family:var(--mono);font-size:12.5px;color:var(--brass)">002418 {TYPE} {description} {rev/date}.ext</div>
+            <p style="color:var(--dimmer);font-size:12px;margin-top:10px">e.g. <span class="mono">002418 DWG A-101 Ground Floor Plan Rev3.pdf</span></p>
+          </div></div>
+          <div class="card"><div class="card-head"><h3>SharePoint Folder Template</h3></div><div class="card-body">
+            <p style="color:var(--dim);font-size:13px;margin-bottom:14px">12 sub-folders provisioned per job · structure enforced · path-length safe (256 char).</p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <span class="chip">DWG Drawings</span><span class="chip">PRM Permits</span><span class="chip">CON Contracts</span><span class="chip">CO Change Orders</span><span class="chip">RFI RFIs</span><span class="chip">SUB Submittals</span><span class="chip">INV Invoices</span><span class="chip">LOG Daily Logs</span><span class="chip">PHO Photos</span><span class="chip">INS COI</span>
+            </div>
+          </div></div>
+          <div class="card"><div class="card-head"><h3>Team &amp; Access</h3></div><div class="card-body flush"><table><tbody id="team-body"></tbody></table></div></div>
+          <div class="card"><div class="card-head"><h3>Integrations</h3></div><div class="card-body flush"><table><tbody id="int-body"></tbody></table></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- AI PANEL -->
+<div class="scrim" id="scrim" onclick="toggleAI(false)"></div>
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-head">
+    <div class="spark">✦</div>
+    <div><h3>Willowfield AI</h3><div class="st"><span class="d"></span>Grounded in your portal data</div></div>
+    <div class="x" onclick="toggleAI(false)">×</div>
+  </div>
+  <div class="ai-log" id="aiLog">
+    <div class="msg bot">👋 Ask me anything about your projects. I can search jobs, permits, A/R, insurance, photos and the inbox — and I cite the records I pull from so you can verify everything.</div>
+  </div>
+  <div class="ai-sugg" id="aiSugg">
+    <div class="s" onclick="askAI(this.textContent)">What's the status on the Park Avenue job?</div>
+    <div class="s" onclick="askAI(this.textContent)">Which permits expire in the next 30 days?</div>
+    <div class="s" onclick="askAI(this.textContent)">Who owes us the most money and longest?</div>
+    <div class="s" onclick="askAI(this.textContent)">Show jobs with insurance expiring soon</div>
+  </div>
+  <div class="ai-in"><input id="aiInput" placeholder="Ask about jobs, permits, money…" onkeydown="if(event.key==='Enter')askAI(this.value)"><button onclick="askAI(document.getElementById('aiInput').value)">➤</button></div>
+  <div class="ai-foot">Built on Claude by Anthropic · Kane PC · scoped to your role</div>
+</div>
+
+<!-- JOB MODAL -->
+<div class="modal" id="jobModal">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div><h2 id="m-title">—</h2><div class="sub" id="m-sub">—</div></div>
+      <div class="x" onclick="closeJob()">×</div>
+    </div>
+    <div class="sheet-kpis">
+      <div class="k"><div class="l">Contract</div><div class="v" id="m-contract">—</div></div>
+      <div class="k"><div class="l">Billed to Date</div><div class="v" id="m-billed">—</div></div>
+      <div class="k"><div class="l">A/R Balance</div><div class="v" id="m-ar">—</div></div>
+      <div class="k"><div class="l">% Complete</div><div class="v" id="m-pct">—</div></div>
+    </div>
+    <div class="sheet-body">
+      <div>
+        <h4>Project Info</h4>
+        <div class="dl"><span class="k">Customer</span><span id="m-cust">—</span></div>
+        <div class="dl"><span class="k">Site</span><span id="m-site">—</span></div>
+        <div class="dl"><span class="k">Project Manager</span><span id="m-pm">—</span></div>
+        <div class="dl"><span class="k">Status</span><span id="m-status">—</span></div>
+        <div class="dl"><span class="k">Next Milestone</span><span id="m-mile">—</span></div>
+      </div>
+      <div>
+        <h4>Compliance &amp; Docs</h4>
+        <div class="dl"><span class="k">COI</span><span id="m-coi">—</span></div>
+        <div class="dl"><span class="k">Permit</span><span id="m-permit">—</span></div>
+        <div class="dl"><span class="k">Open Tasks</span><span id="m-tasks">—</span></div>
+        <div class="dl"><span class="k">Documents</span><span id="m-docs">—</span></div>
+        <div class="dl"><span class="k">Site Photos</span><span id="m-photos">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const JOBS=[
+  {no:"002418",name:"Park Ave 12B — Full Interior Reno",site:"1148 Park Ave, New York, NY",cust:"R. & S. Feldman",pm:"Mike R.",status:"In Progress",coi:"Expiring",prog:64,contract:842000,ar:61200,mile:"Millwork install · Jul 18",permit:"NYC DOB Alt-2 · issued",tasks:3,docs:88,photos:41},
+  {no:"002421",name:"Scarsdale — Kitchen & Primary Suite",site:"22 Heathcote Rd, Scarsdale, NY",cust:"The Delgado Family",pm:"Sean K.",status:"In Progress",coi:"Current",prog:52,contract:410000,ar:0,mile:"Stone template · Jul 15",permit:"Westchester Co. · issued",tasks:2,docs:54,photos:33},
+  {no:"002419",name:"Midtown — Law Office Build-Out",site:"605 Third Ave, New York, NY",cust:"Harwell & Stone LLP",pm:"Mike R.",status:"Awaiting Permit",coi:"Current",prog:12,contract:1240000,ar:0,mile:"DOB plan review",permit:"NYC DOB Alt-2 · in review",tasks:1,docs:37,photos:6},
+  {no:"002415",name:"Bronxville — Custom Millwork Kitchen",site:"14 Pondfield Rd, Bronxville, NY",cust:"K. Ashworth",pm:"Sean K.",status:"Closing Out",coi:"Current",prog:96,contract:186000,ar:22400,mile:"Punch list · final walk Jul 11",permit:"Westchester Co. · closed",tasks:2,docs:61,photos:52},
+  {no:"002422",name:"Rye — Primary Bath & Stone",site:"8 Milton Rd, Rye, NY",cust:"M. Calloway",pm:"Sean K.",status:"In Progress",coi:"Current",prog:41,contract:138000,ar:14300,mile:"Waterproofing inspection",permit:"Rye Bldg Dept · issued",tasks:1,docs:29,photos:22},
+  {no:"002410",name:"New Rochelle — Rear Extension",site:"31 Pinebrook Blvd, New Rochelle, NY",cust:"Torres Family",pm:"Mike R.",status:"On Hold",coi:"Expiring",prog:28,contract:295000,ar:8100,mile:"Owner selections pending",permit:"New Rochelle · issued",tasks:0,docs:33,photos:14},
+  {no:"002417",name:"Greenwich — Storefront Fit-Out",site:"120 Greenwich Ave, Greenwich, CT",cust:"Marsh Retail Group",pm:"Mike R.",status:"In Progress",coi:"Missing",prog:58,contract:224000,ar:18900,mile:"Storefront glazing · Jul 22",permit:"Greenwich · issued",tasks:1,docs:41,photos:19},
+  {no:"002424",name:"UES — Apartment Combination 9A/9B",site:"1148 Fifth Ave, New York, NY",cust:"Board / 1148 Fifth",pm:"Mike R.",status:"In Progress",coi:"Current",prog:22,contract:686000,ar:0,mile:"Wall demo · board sign-off",permit:"NYC DOB Alt-1 · issued",tasks:1,docs:44,photos:11},
+  {no:"002408",name:"Larchmont — Whole Home Renovation",site:"5 Larchmont Ave, Larchmont, NY",cust:"J. & P. Whitman",pm:"Sean K.",status:"Closing Out",coi:"Current",prog:91,contract:289000,ar:135600,mile:"CO filing · final billing",permit:"Westchester Co. · closed",tasks:0,docs:72,photos:38},
+];
+const PERMITS=[
+  {no:"B00742118",type:"NYC DOB Alt-2",auth:"NYC DOB",job:"Park Ave 12B (#2418)",status:"Issued",statusCls:"green",expires:"Aug 2, 2026",attn:false},
+  {no:"WP-26-0914",type:"Building",auth:"Westchester Co.",job:"Scarsdale K&B (#2421)",status:"Issued",statusCls:"green",expires:"Sep 14, 2026",attn:false},
+  {no:"B00744902",type:"NYC DOB Alt-2",auth:"NYC DOB",job:"Midtown Office (#2419)",status:"In Review",statusCls:"amber",expires:"—",attn:false},
+  {no:"NR-26-0331",type:"Building",auth:"New Rochelle",job:"Rear Extension (#2410)",status:"Expiring",statusCls:"amber",expires:"Jul 21, 2026",attn:true,days:"13 days"},
+  {no:"B00741550",type:"NYC DOB Alt-2",auth:"NYC DOB",job:"UES Combination (#2424)",status:"Issued",statusCls:"green",expires:"Oct 5, 2026",attn:false},
+  {no:"RY-26-0208",type:"Plumbing",auth:"Rye Bldg Dept",job:"Rye Primary Bath (#2422)",status:"Expiring",statusCls:"amber",expires:"Jul 16, 2026",attn:true,days:"8 days"},
+  {no:"GR-26-1140",type:"Building",auth:"Greenwich CT",job:"Storefront Fit-Out (#2417)",status:"Denied",statusCls:"red",expires:"Resubmit",attn:true,days:"DENIED"},
+  {no:"WP-26-0620",type:"Electrical",auth:"Westchester Co.",job:"Bronxville Kitchen (#2415)",status:"Issued",statusCls:"green",expires:"Aug 28, 2026",attn:false},
+];
+const RULES=[
+  {t:"30 days before expiration",tag:"T-30",ch:["EMAIL","IN-APP"],r:"Assigned PM",on:true},
+  {t:"14 days before expiration",tag:"T-14",ch:["EMAIL","IN-APP","SMS"],r:"PM + Owner",on:true},
+  {t:"7 days before expiration",tag:"T-7",ch:["EMAIL","IN-APP","SMS"],r:"PM + Owner + Office",on:true},
+  {t:"1 day before expiration",tag:"T-1",ch:["EMAIL","SMS","ESCALATE"],r:"All + auto-escalate to Owner",on:true},
+  {t:"Permit denied",tag:"Immediate",ch:["EMAIL","IN-APP","SMS"],r:"PM + Owner + Expediter",on:true},
+  {t:"Plan review > 21 days",tag:"Stale",ch:["EMAIL","IN-APP"],r:"PM + Expediter",on:false},
+];
+const INS=[
+  {job:"#2418 Park Ave",cust:"R. & S. Feldman",carrier:"Hartford",gl:"$2M / $4M",status:"Expiring",cls:"amber",exp:"Jul 30, 2026"},
+  {job:"#2421 Scarsdale",cust:"Delgado Family",carrier:"Travelers",gl:"$2M / $4M",status:"Current",cls:"green",exp:"Feb 2027"},
+  {job:"#2419 Midtown",cust:"Harwell & Stone",carrier:"Chubb",gl:"$5M / $10M",status:"Current",cls:"green",exp:"Jan 2027"},
+  {job:"#2417 Greenwich",cust:"Marsh Retail",carrier:"—",gl:"—",status:"Missing",cls:"red",exp:"Never received"},
+  {job:"#2410 New Rochelle",cust:"Torres Family",carrier:"Hartford",gl:"$2M / $4M",status:"Expiring",cls:"amber",exp:"Aug 4, 2026"},
+  {job:"#2424 UES 9A/9B",cust:"1148 Fifth",carrier:"Chubb",gl:"$5M / $10M",status:"Current",cls:"green",exp:"Mar 2027"},
+];
+const AR_TIERS=[
+  {lbl:"Current",sub:"0–30 days · 9 inv",val:118400,cls:""},
+  {lbl:"31–60",sub:"standard follow-up · 5 inv",val:61200,cls:"warn"},
+  {lbl:"61–90",sub:"formal notice · 3 inv",val:52410,cls:"warn"},
+  {lbl:"91–120",sub:"PM escalation · 2 inv",val:37800,cls:"bad"},
+  {lbl:"120+",sub:"collections review · 1 inv",val:14600,cls:"bad"},
+];
+const AR=[
+  {inv:"INV-2418-06",cust:"R. & S. Feldman",job:"#2418",age:"22 d",tier:"Current",cls:"green",bal:61200},
+  {inv:"INV-2415-04",cust:"K. Ashworth",job:"#2415",age:"38 d",tier:"31–60",cls:"amber",bal:22400},
+  {inv:"INV-2417-03",cust:"Marsh Retail",job:"#2417",age:"44 d",tier:"31–60",cls:"amber",bal:18900},
+  {inv:"INV-2422-02",cust:"M. Calloway",job:"#2422",age:"29 d",tier:"Current",cls:"green",bal:14300},
+  {inv:"INV-2410-02",cust:"Torres Family",job:"#2410",age:"71 d",tier:"61–90",cls:"amber",bal:8100},
+  {inv:"INV-2408-05",cust:"J. & P. Whitman",job:"#2408",age:"88 d",tier:"61–90",cls:"amber",bal:44200},
+  {inv:"INV-2408-04",cust:"J. & P. Whitman",job:"#2408",age:"104 d",tier:"91–120",cls:"red",bal:37800},
+  {inv:"INV-2408-03",cust:"J. & P. Whitman",job:"#2408",age:"131 d",tier:"120+",cls:"red",bal:14600},
+];
+const TASKS=[
+  {t:"Confirm stone slab template appointment",job:"#2421 Scarsdale",owner:"Sean K.",due:"Jul 15",status:"In Progress",cls:"amber"},
+  {t:"Chase Greenwich COI from Marsh Retail",job:"#2417 Greenwich",owner:"Office",due:"Jul 9",status:"Overdue",cls:"red"},
+  {t:"Submit revised Greenwich permit drawings",job:"#2417 Greenwich",owner:"Mike R.",due:"Jul 12",status:"In Progress",cls:"amber"},
+  {t:"Schedule waterproofing inspection",job:"#2422 Rye",owner:"Sean K.",due:"Jul 14",status:"Not Started",cls:"grey"},
+  {t:"Owner selections follow-up (tile / fixtures)",job:"#2410 New Rochelle",owner:"Mike R.",due:"Jul 10",status:"Overdue",cls:"red"},
+  {t:"Millwork shop drawing approval",job:"#2418 Park Ave",owner:"Mike R.",due:"Jul 16",status:"In Progress",cls:"amber"},
+  {t:"Final punch walk with client",job:"#2415 Bronxville",owner:"Sean K.",due:"Jul 11",status:"In Progress",cls:"amber"},
+];
+const CO=[
+  {no:"CO-2418-03",job:"#2418 Park Ave",desc:"Upgrade to rift-sawn white oak millwork",status:"Approved",cls:"green",amt:38400},
+  {no:"CO-2421-02",job:"#2421 Scarsdale",desc:"Add pot filler + relocate range hood venting",status:"Approved",cls:"green",amt:9600},
+  {no:"CO-2419-01",job:"#2419 Midtown",desc:"Additional demising wall + acoustic ceiling",status:"Submitted",cls:"amber",amt:74000},
+  {no:"CO-2422-01",job:"#2422 Rye",desc:"Heated floor system in primary bath",status:"Approved",cls:"green",amt:7200},
+  {no:"CO-2410-01",job:"#2410 New Rochelle",desc:"Structural header revision per engineer",status:"Draft",cls:"grey",amt:12800},
+];
+const INBOX=[
+  {from:"Dana Feldman",subj:"Re: millwork stain samples",prev:"The walnut looks great — let's go with that one. When do…",job:"#2418",unread:true,time:"9:12 AM"},
+  {from:"Harwell & Stone (Ops)",subj:"DOB plan review timing?",prev:"Our lease build-out clock is ticking — any word from the…",job:"#2419",unread:true,time:"8:40 AM"},
+  {from:"Marsh Retail Group",subj:"COI — sending today",prev:"Apologies for the delay, our broker is issuing the cert…",job:"#2417",unread:true,time:"Yesterday"},
+  {from:"1148 Fifth Board",subj:"Alteration agreement countersigned",prev:"Attached is the fully executed alteration agreement for…",job:"#2424",unread:true,time:"Yesterday"},
+  {from:"Sean K.",subj:"Bronxville final walk Friday",prev:"Client confirmed 10am Friday for the final walkthrough…",job:"#2415",unread:false,time:"Mon"},
+];
+const BIDS=[
+  {name:"Chappaqua — Full Gut Renovation",cust:"Private / referral",phase:"Bidding",cls:"blue",due:"Jul 25",val:520000},
+  {name:"Tribeca — Loft Combination",cust:"Sotheby's referral",phase:"Bidding",cls:"blue",due:"Jul 30",val:1150000},
+  {name:"White Plains — Dental Office TI",cust:"Ridgeway Dental",phase:"Submitted",cls:"amber",due:"Submitted",val:340000},
+  {name:"Mamaroneck — Kitchen & Bath",cust:"D. Okafor",phase:"Submitted",cls:"amber",due:"Submitted",val:172000},
+  {name:"Yonkers — Retail Build-Out",cust:"Saw Mill Plaza",phase:"Awarded",cls:"green",due:"Awarded",val:265000},
+];
+const PHOTOS=[
+  {job:"Rye — Primary Bath",pm:"Sean K. · #2422",b:"1584622650111-993a426fbf0a",a:"1600566753086-00f18fb6b3ea"},
+  {job:"Bronxville — Kitchen",pm:"Sean K. · #2415",b:"1556909114-f6e7ad7d3136",a:"1565182999561-18d7dc61c393"},
+  {job:"Park Ave — Living Room",pm:"Mike R. · #2418",b:"1503174971373-b1f69850bded",a:"1600607687939-ce8a6c25118c"},
+];
+const DOCS=[
+  {n:"002418 DWG A-201 Millwork Elevations Rev2.pdf",cat:"Drawings",job:"#2418",mod:"2h ago",size:"4.2 MB"},
+  {n:"002421 CON Signed Contract Delgado.pdf",cat:"Contracts",job:"#2421",mod:"Yesterday",size:"1.1 MB"},
+  {n:"002419 PRM DOB Alt-2 Filing Set.pdf",cat:"Permits",job:"#2419",mod:"2d ago",size:"12.8 MB"},
+  {n:"002417 INS Marsh Retail COI REQUEST.pdf",cat:"COI",job:"#2417",mod:"3d ago",size:"88 KB"},
+  {n:"002418 CO-03 White Oak Millwork Upgrade.pdf",cat:"Change Orders",job:"#2418",mod:"3d ago",size:"320 KB"},
+  {n:"002415 PHO Final Kitchen Set (52).zip",cat:"Photos",job:"#2415",mod:"4d ago",size:"210 MB"},
+];
+const TEAM=[
+  {n:"Mike Reilly",role:"Owner / Sr. PM",init:"MR"},
+  {n:"Sean K.",role:"Project Manager",init:"SK"},
+  {n:"Office / Admin",role:"COI · Inbox · Billing",init:"OF"},
+  {n:"Kane PC",role:"Portal support",init:"KP"},
+];
+
+/* ---------------- HELPERS ---------------- */
+const $=s=>document.querySelector(s);
+const money=n=>"$"+n.toLocaleString();
+const statusCls=s=>({"In Progress":"green","Awaiting Permit":"amber","On Hold":"red","Closing Out":"blue"}[s]||"grey");
+const coiCls=c=>({"Current":"green","Expiring":"amber","Missing":"red"}[c]||"grey");
+function pill(txt,cls){return `<span class="pill ${cls}"><span class="d"></span>${txt}</span>`}
+
+/* ---------------- RENDER ---------------- */
+function jobRow(j,full){
+  const base=`<td class="jobno">${j.no.slice(-4)}</td>`;
+  if(!full) return `<tr class="clickable" onclick="openJob('${j.no}')">${base}<td>${j.name}</td><td class="muted">${j.pm}</td><td>${pill(j.status,statusCls(j.status))}</td><td><div class="prog"><span style="width:${j.prog}%"></span></div></td><td class="num">${money(j.contract)}</td></tr>`;
+  return `<tr class="clickable" onclick="openJob('${j.no}')">${base}<td>${j.name}<div class="muted" style="font-size:11.5px">${j.site}</div></td><td class="muted">${j.cust}</td><td class="muted">${j.pm}</td><td>${pill(j.status,statusCls(j.status))}</td><td>${pill(j.coi,coiCls(j.coi))}</td><td><div class="prog"><span style="width:${j.prog}%"></span></div></td><td class="num">${money(j.contract)}</td><td class="num">${j.ar?money(j.ar):"—"}</td></tr>`;
+}
+function renderDash(){
+  $("#dash-jobs").innerHTML=JOBS.filter(j=>j.status==="In Progress").slice(0,5).map(j=>jobRow(j,false)).join("");
+  $("#dash-aging").innerHTML=AR_TIERS.map(t=>{
+    const cls=t.cls==="bad"?"red":t.cls==="warn"?"amber":"green";
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)"><span style="font-size:12.5px;color:var(--dim)">${t.lbl}</span><span class="num" style="font-weight:600">${money(t.val)}</span></div>`;
+  }).join("");
+  $("#dash-permits").innerHTML=PERMITS.filter(p=>p.attn).map(p=>`<tr><td>${p.days==="DENIED"?pill("DENIED","red"):`<span class="pill amber"><span class="d"></span>${p.days}</span>`}</td><td><b>${p.type}</b> ${p.no}</td><td class="muted">${p.job}</td></tr>`).join("");
+  const acts=[
+    ["Today · 10:04 AM","green","Payment received — R. Feldman","$61,200 draw on Job #2418 (Park Ave 12B)"],
+    ["Today · 9:18 AM","amber","Permit expiring in 8 days — Rye","RY-26-0208 on Job #2422 (Primary Bath)"],
+    ["Yesterday · 4:22 PM","red","Permit denied — Greenwich","GR-26-1140 · storefront resubmission needed (Job #2417)"],
+    ["Yesterday · 1:10 PM","blue","Job #2424 moved to In Progress","UES 9A/9B Combination · board sign-off received"],
+    ["Yesterday · 9:40 AM","red","Invoice 120+ days overdue","Whitman #2408 — $14,600 (collections review)"],
+  ];
+  $("#dash-activity").innerHTML=acts.map(a=>`<div class="act"><div class="t">${a[0]}</div><div class="ic" style="background:var(--${a[1]})"></div><div class="b"><div class="a-t">${a[2]}</div><div class="a-d">${a[3]}</div></div></div>`).join("");
+}
+let jobFilter="all";
+function renderJobs(){
+  const list=jobFilter==="all"?JOBS:JOBS.filter(j=>j.status===jobFilter);
+  const total=list.reduce((s,j)=>s+j.contract,0);
+  $("#jobs-count").textContent=`${list.length} jobs · ${money(total)} total contract`;
+  $("#jobs-body").innerHTML=list.map(j=>jobRow(j,true)).join("");
+}
+function renderPermits(){
+  $("#permits-attn").innerHTML=PERMITS.filter(p=>p.attn).map(p=>`<tr><td>${p.days==="DENIED"?pill("DENIED","red"):`<span class="pill amber"><span class="d"></span>${p.days}</span>`}</td><td><b>${p.type}</b> <span class="mono muted">${p.no}</span></td><td class="muted">${p.job}</td><td style="text-align:right"><button class="btn" style="padding:5px 12px">${p.days==="DENIED"?"Resubmit":"File Renewal"}</button></td></tr>`).join("");
+  $("#permits-body").innerHTML=PERMITS.map(p=>`<tr><td class="mono muted">${p.no}</td><td>${p.type}</td><td class="muted">${p.auth}</td><td class="muted">${p.job}</td><td>${pill(p.status,p.statusCls)}</td><td class="num muted">${p.expires}</td></tr>`).join("");
+  $("#rules-body").innerHTML=RULES.map((r,i)=>`<tr><td>${r.t}<div class="mono muted" style="font-size:10px">${r.tag}</div></td><td>${r.ch.map(c=>`<span class="ch">${c}</span>`).join("")}</td><td class="muted">${r.r}</td><td style="text-align:right"><div class="toggle ${r.on?'on':''}" onclick="this.classList.toggle('on')"></div></td></tr>`).join("");
+}
+function renderInsurance(){
+  $("#ins-body").innerHTML=INS.map(i=>`<tr><td class="jobno">${i.job}</td><td>${i.cust}</td><td class="muted">${i.carrier}</td><td class="num muted">${i.gl}</td><td>${pill(i.status,i.cls)}</td><td class="num muted">${i.exp}</td></tr>`).join("");
+}
+function renderDocs(){
+  $("#ba-gallery").innerHTML=PHOTOS.map(p=>`<div class="bapair"><div class="imgs"><div class="imwrap"><img src="https://images.unsplash.com/photo-${p.b}?w=400&q=60" alt="before"><b class="lab">Before</b></div><div class="imwrap"><img src="https://images.unsplash.com/photo-${p.a}?w=400&q=60" alt="after"><b class="lab">After</b></div></div><div class="cap">${p.job}<span>${p.pm}</span></div></div>`).join("");
+  $("#docs-body").innerHTML=DOCS.map(d=>`<tr class="clickable"><td>${d.n}</td><td>${pill(d.cat,"grey")}</td><td class="jobno">${d.job}</td><td class="muted">${d.mod}</td><td class="num muted">${d.size}</td></tr>`).join("");
+}
+let arFilter="all";
+function renderAR(){
+  $("#ar-tiers").innerHTML=AR_TIERS.map(t=>{
+    const cls=t.cls==="bad"?"bad":t.cls==="warn"?"warn":"up";
+    const active=arFilter===t.lbl?'style="border-color:var(--brass)"':'';
+    return `<div class="kpi" ${active} onclick="arFilter=arFilter==='${t.lbl}'?'all':'${t.lbl}';renderAR()" style="cursor:pointer;${arFilter===t.lbl?'border-color:var(--brass)':''}"><div class="k-lbl">${t.lbl}</div><div class="k-val" style="font-size:22px">${money(t.val)}</div><div class="k-sub ${cls}">${t.sub}</div></div>`;
+  }).join("");
+  const list=arFilter==="all"?AR:AR.filter(a=>a.tier===arFilter);
+  $("#ar-count").textContent=arFilter==="all"?"All Invoices":`Tier · ${arFilter}`;
+  $("#ar-body").innerHTML=list.map(a=>`<tr class="clickable"><td class="mono muted">${a.inv}</td><td>${a.cust}</td><td class="jobno">${a.job}</td><td class="num muted">${a.age}</td><td>${pill(a.tier,a.cls)}</td><td class="num" style="font-weight:600">${money(a.bal)}</td></tr>`).join("");
+}
+function renderTasks(){
+  $("#tasks-body").innerHTML=TASKS.map(t=>`<tr class="clickable"><td>${t.t}</td><td class="jobno">${t.job}</td><td class="muted">${t.owner}</td><td class="num muted">${t.due}</td><td>${pill(t.status,t.cls)}</td></tr>`).join("");
+}
+function renderCO(){
+  $("#co-body").innerHTML=CO.map(c=>`<tr class="clickable"><td class="mono muted">${c.no}</td><td class="jobno">${c.job}</td><td>${c.desc}</td><td>${pill(c.status,c.cls)}</td><td class="num" style="font-weight:600">${money(c.amt)}</td></tr>`).join("");
+}
+function renderInbox(){
+  $("#inbox-body").innerHTML=INBOX.map(m=>`<tr class="clickable"><td style="width:34px">${m.unread?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--brass)"></span>':''}</td><td style="width:150px;font-weight:${m.unread?'700':'500'}">${m.from}</td><td><b style="font-weight:${m.unread?'700':'500'}">${m.subj}</b> <span class="muted">— ${m.prev}</span></td><td class="jobno" style="width:60px">${m.job}</td><td class="num muted" style="width:80px;text-align:right">${m.time}</td></tr>`).join("");
+}
+function renderPipeline(){
+  $("#bids-body").innerHTML=BIDS.map(b=>`<tr class="clickable"><td>${b.name}</td><td class="muted">${b.cust}</td><td>${pill(b.phase,b.cls)}</td><td class="num muted">${b.due}</td><td class="num" style="font-weight:600">${money(b.val)}</td></tr>`).join("");
+}
+function renderSettings(){
+  $("#team-body").innerHTML=TEAM.map(t=>`<tr><td style="width:44px"><div class="avatar" style="width:30px;height:30px;font-size:11px">${t.init}</div></td><td><b>${t.n}</b></td><td class="muted" style="text-align:right">${t.role}</td></tr>`).join("");
+  const ints=[["SharePoint","Connected","green"],["QuickBooks","Connected · CSV weekly","green"],["Microsoft 365","Connected","green"],["Procore","Migrating · commercial bids","amber"],["Cloudflare DNS","Connected","green"]];
+  $("#int-body").innerHTML=ints.map(i=>`<tr><td><b>${i[0]}</b></td><td style="text-align:right">${pill(i[1],i[2])}</td></tr>`).join("");
+}
+
+/* ---------------- NAV ---------------- */
+const RENDERED={};
+const RENDERERS={dashboard:renderDash,jobs:renderJobs,permits:renderPermits,insurance:renderInsurance,docs:renderDocs,receivables:renderAR,tasks:renderTasks,changeorders:renderCO,inbox:renderInbox,pipeline:renderPipeline,settings:renderSettings};
+function go(view){
+  document.querySelectorAll('.navitem').forEach(n=>n.classList.toggle('active',n.dataset.view===view));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  $("#v-"+view).classList.add('on');
+  $("#crumb").textContent=$(`.navitem[data-view="${view}"]`).textContent.replace(/[0-9]+$/,'').trim();
+  if(RENDERERS[view]){RENDERERS[view]();}
+  $(".content").scrollTop=0;
+}
+document.querySelectorAll('.navitem').forEach(n=>n.addEventListener('click',()=>go(n.dataset.view)));
+document.querySelectorAll('[data-filter="jobs"] .ftab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('[data-filter="jobs"] .ftab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');jobFilter=t.dataset.f;renderJobs();
+}));
+
+/* ---------------- JOB MODAL ---------------- */
+function openJob(no){
+  const j=JOBS.find(x=>x.no===no);if(!j)return;
+  $("#m-title").textContent=j.name;
+  $("#m-sub").textContent=`Job #${j.no.slice(-4)} · ${j.site}`;
+  $("#m-contract").textContent=money(j.contract);
+  $("#m-billed").textContent=money(Math.round(j.contract*j.prog/100));
+  $("#m-ar").textContent=j.ar?money(j.ar):"$0";
+  $("#m-pct").textContent=j.prog+"%";
+  $("#m-cust").textContent=j.cust;$("#m-site").textContent=j.site;$("#m-pm").textContent=j.pm;
+  $("#m-status").innerHTML=pill(j.status,statusCls(j.status));$("#m-mile").textContent=j.mile;
+  $("#m-coi").innerHTML=pill(j.coi,coiCls(j.coi));$("#m-permit").textContent=j.permit;
+  $("#m-tasks").textContent=j.tasks+" open";$("#m-docs").textContent=j.docs+" files";$("#m-photos").textContent=j.photos+" photos";
+  $("#jobModal").classList.add('on');
+}
+function closeJob(){$("#jobModal").classList.remove('on')}
+$("#jobModal").addEventListener('click',e=>{if(e.target.id==='jobModal')closeJob()});
+
+/* ---------------- AI ---------------- */
+function toggleAI(open){$("#aiPanel").classList.toggle('open',open);$("#scrim").classList.toggle('on',open);if(open)$("#aiInput").focus()}
+const AI_ANSWERS=[
+  {k:["park ave","park avenue","feldman","2418"],a:"<b>Park Ave 12B (#2418)</b> is in progress at 64% complete. Millwork install is the next milestone (Jul 18). Contract is $842,000 with $61,200 currently in A/R — a draw payment posted this morning. One flag: the <b>COI expires Jul 30</b>, so it's due for renewal.",c:"Sources: Job #2418 · A/R INV-2418-06 · COI (Hartford)"},
+  {k:["permit","expire","30 day","expiring"],a:"Three permits need attention in the next 30 days:<br>• <b>Rye #2422</b> — plumbing permit RY-26-0208 expires <b>Jul 16 (8 days)</b><br>• <b>New Rochelle #2410</b> — building permit NR-26-0331 expires <b>Jul 21 (13 days)</b><br>• <b>Greenwich #2417</b> — GR-26-1140 was <b>DENIED</b>, resubmission needed<br>The T-7 alert already fired for Rye.",c:"Sources: Permits module · alert log"},
+  {k:["owe","money","longest","overdue","most"],a:"The <b>Whitman job (#2408, Larchmont)</b> is your biggest and oldest exposure — three stacked invoices totaling <b>$96,600</b>, the oldest at 131 days (120+ tier, collections review). Next is <b>K. Ashworth (#2415)</b> at $22,400 (38 days). Total A/R outstanding is $284,410, DSO 38 days.",c:"Sources: Receivables · QuickBooks sync (2d ago)"},
+  {k:["insurance","coi","expiring soon"],a:"Two COIs are expiring within 30 days: <b>Park Ave #2418</b> (Hartford, Jul 30) and <b>New Rochelle #2410</b> (Hartford, Aug 4). One is outright missing: <b>Greenwich #2417</b> (Marsh Retail) — never received, and the crew is already on site, so that's a stop-work risk.",c:"Sources: Insurance Tracker · 9 jobs"},
+  {k:["greenwich","2417","marsh"],a:"<b>Greenwich Storefront Fit-Out (#2417)</b> has two open risks: the building permit <b>GR-26-1140 was denied</b> and needs resubmitted drawings, and the <b>COI is still missing</b> from Marsh Retail. The client emailed this morning saying the cert is being issued today. Job is 58% complete at $224,000 contract.",c:"Sources: Job #2417 · Permits · Inbox"},
+];
+function askAI(q){
+  q=(q||"").trim();if(!q)return;
+  $("#aiInput").value="";$("#aiSugg").style.display="none";
+  const log=$("#aiLog");
+  log.insertAdjacentHTML('beforeend',`<div class="msg user">${q}</div>`);
+  log.scrollTop=log.scrollHeight;
+  const ql=q.toLowerCase();
+  let hit=AI_ANSWERS.find(a=>a.k.some(k=>ql.includes(k)));
+  const typing=document.createElement('div');typing.className="msg bot";typing.textContent="…";log.appendChild(typing);log.scrollTop=log.scrollHeight;
+  setTimeout(()=>{
+    if(hit){typing.innerHTML=hit.a+`<div class="cite">${hit.c}</div>`;}
+    else{typing.innerHTML="I can pull from jobs, permits, receivables, insurance, tasks, change orders and the inbox. Try asking about a specific job, expiring permits, or who owes the most.<div class='cite'>Grounded in Willowfield portal data</div>";}
+    log.scrollTop=log.scrollHeight;
+  },550);
+}
+
+/* ---------------- INIT ---------------- */
+renderDash();
+</script>
+</body>
+</html>
