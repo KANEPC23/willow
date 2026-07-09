@@ -213,6 +213,55 @@
   .dl:last-child{border-bottom:0}.dl .k{color:var(--dim)}
   @media(max-width:680px){.sheet-body{grid-template-columns:1fr}.sheet-kpis{grid-template-columns:1fr 1fr}}
 
+  /* RICH JOB SHEET */
+  #jobModal .sheet{max-width:980px}
+  .sheet-eyebrow{display:flex;gap:8px;align-items:center;margin-bottom:9px}
+  #m-kpis{grid-template-columns:repeat(6,1fr)}
+  #m-kpis .k .l{white-space:nowrap}
+  #m-kpis .k .v{font-size:18px}
+  #m-kpis .k .v.pos{color:var(--green)}#m-kpis .k .v.warnv{color:var(--amber)}
+  .sheet-cols{display:grid;grid-template-columns:1.4fr 1fr}
+  .col-main{border-right:1px solid var(--line)}
+  .msec{padding:18px 24px;border-bottom:1px solid var(--line)}
+  .msec:last-child{border-bottom:0}
+  .msec h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+  .msec h4 .h-note{color:var(--dimmer);font-weight:400;letter-spacing:.02em;text-transform:none;font-family:var(--body);font-size:11px}
+  .finrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .finrow:last-child{border-bottom:0}
+  .finrow .k{color:var(--dim)}
+  .finrow .v{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .finrow.sub .k{padding-left:12px;color:var(--dimmer)}
+  .finrow.total{border-top:1px solid var(--line-2);border-bottom:0;margin-top:3px;padding-top:10px;font-weight:700}
+  .finrow.total .v{color:var(--brass)}
+  .sov{width:100%;border-collapse:collapse}
+  .sov td{padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle}
+  .sov tr:last-child td{border-bottom:0}
+  .sov .dv{color:var(--text)}
+  .sov .amt{font-family:var(--mono);color:var(--dim);text-align:right;white-space:nowrap;padding-left:10px}
+  .sov .barcell{width:76px;padding-left:12px}
+  .sov .pct{font-family:var(--mono);color:var(--dim);text-align:right;width:40px}
+  .tl{margin-left:5px}
+  .tl-step{position:relative;padding:0 0 15px 20px;border-left:1px solid var(--line-2)}
+  .tl-step:last-child{border-left:1px solid transparent;padding-bottom:0}
+  .tl-step::before{content:"";position:absolute;left:-5px;top:2px;width:9px;height:9px;border-radius:50%;background:var(--panel-3);border:1px solid var(--line-2)}
+  .tl-step.done::before{background:var(--green);border-color:var(--green)}
+  .tl-step.active::before{background:var(--brass);border-color:var(--brass);box-shadow:0 0 0 3px rgba(194,154,86,.18)}
+  .tl-step .ts-t{font-size:12.5px;font-weight:600}
+  .tl-step.upcoming .ts-t{color:var(--dim);font-weight:500}
+  .tl-step .ts-d{font-size:10.5px;color:var(--dimmer);font-family:var(--mono);margin-top:1px}
+  .subs{display:flex;flex-wrap:wrap;gap:6px}
+  .sub-chip{font-size:11.5px;padding:4px 9px;border-radius:5px;background:var(--panel-2);border:1px solid var(--line);color:var(--dim)}
+  .co-mini,.doc-mini{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px;align-items:center}
+  .co-mini:last-child,.doc-mini:last-child{border-bottom:0}
+  .co-mini .cd{color:var(--dim)}
+  .co-mini .ca{font-family:var(--mono);white-space:nowrap;padding-left:8px}
+  .doc-mini .dn{font-family:var(--mono);color:var(--text);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .doc-mini .dm{color:var(--dimmer);font-size:11px;white-space:nowrap;padding-left:8px}
+  .photo-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .photo-strip img{width:100%;height:58px;object-fit:cover;border-radius:5px}
+  .mnone{color:var(--dimmer);font-size:12.5px;font-style:italic}
+  @media(max-width:760px){.sheet-cols{grid-template-columns:1fr}.col-main{border-right:0;border-bottom:1px solid var(--line)}#m-kpis{grid-template-columns:repeat(3,1fr)}}
+
   .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   @media(max-width:900px){.settings-grid{grid-template-columns:1fr}}
   .empty{padding:44px;text-align:center;color:var(--dim)}
@@ -548,31 +597,26 @@
 <div class="modal" id="jobModal">
   <div class="sheet">
     <div class="sheet-head">
-      <div><h2 id="m-title">—</h2><div class="sub" id="m-sub">—</div></div>
+      <div>
+        <div class="sheet-eyebrow" id="m-eyebrow"></div>
+        <h2 id="m-title">—</h2><div class="sub" id="m-sub">—</div>
+      </div>
       <div class="x" onclick="closeJob()">×</div>
     </div>
-    <div class="sheet-kpis">
-      <div class="k"><div class="l">Contract</div><div class="v" id="m-contract">—</div></div>
-      <div class="k"><div class="l">Billed to Date</div><div class="v" id="m-billed">—</div></div>
-      <div class="k"><div class="l">A/R Balance</div><div class="v" id="m-ar">—</div></div>
-      <div class="k"><div class="l">% Complete</div><div class="v" id="m-pct">—</div></div>
-    </div>
-    <div class="sheet-body">
-      <div>
-        <h4>Project Info</h4>
-        <div class="dl"><span class="k">Customer</span><span id="m-cust">—</span></div>
-        <div class="dl"><span class="k">Site</span><span id="m-site">—</span></div>
-        <div class="dl"><span class="k">Project Manager</span><span id="m-pm">—</span></div>
-        <div class="dl"><span class="k">Status</span><span id="m-status">—</span></div>
-        <div class="dl"><span class="k">Next Milestone</span><span id="m-mile">—</span></div>
+    <div class="sheet-kpis" id="m-kpis"></div>
+    <div class="sheet-cols">
+      <div class="col-main">
+        <div class="msec"><h4>Financial Summary <span class="h-note" id="m-fin-note"></span></h4><div id="m-fin"></div></div>
+        <div class="msec"><h4>Cost Breakdown <span class="h-note">Schedule of values · budget vs billed</span></h4><table class="sov"><tbody id="m-sov"></tbody></table></div>
+        <div class="msec"><h4>Change Orders <span class="h-note" id="m-co-note"></span></h4><div id="m-co"></div></div>
+        <div class="msec"><h4>Recent Documents <span class="h-note" id="m-doc-note"></span></h4><div id="m-doclist"></div></div>
       </div>
-      <div>
-        <h4>Compliance &amp; Docs</h4>
-        <div class="dl"><span class="k">COI</span><span id="m-coi">—</span></div>
-        <div class="dl"><span class="k">Permit</span><span id="m-permit">—</span></div>
-        <div class="dl"><span class="k">Open Tasks</span><span id="m-tasks">—</span></div>
-        <div class="dl"><span class="k">Documents</span><span id="m-docs">—</span></div>
-        <div class="dl"><span class="k">Site Photos</span><span id="m-photos">—</span></div>
+      <div class="col-side">
+        <div class="msec"><h4>Project</h4><div id="m-proj"></div></div>
+        <div class="msec"><h4>Schedule &amp; Milestones</h4><div id="m-sched"></div></div>
+        <div class="msec"><h4>Team &amp; Subcontractors</h4><div id="m-team"></div></div>
+        <div class="msec"><h4>Compliance</h4><div id="m-comp"></div></div>
+        <div class="msec"><h4>Site Photos <span class="h-note" id="m-photo-note"></span></h4><div class="photo-strip" id="m-photos-strip"></div></div>
       </div>
     </div>
   </div>
@@ -591,6 +635,19 @@ const JOBS=[
   {no:"002424",name:"UES — Apartment Combination 9A/9B",site:"1148 Fifth Ave, New York, NY",cust:"Board / 1148 Fifth",pm:"Mike R.",status:"In Progress",coi:"Current",prog:22,contract:686000,ar:0,mile:"Wall demo · board sign-off",permit:"NYC DOB Alt-1 · issued",tasks:1,docs:44,photos:11},
   {no:"002408",name:"Larchmont — Whole Home Renovation",site:"5 Larchmont Ave, Larchmont, NY",cust:"J. & P. Whitman",pm:"Sean K.",status:"Closing Out",coi:"Current",prog:91,contract:289000,ar:135600,mile:"CO filing · final billing",permit:"Westchester Co. · closed",tasks:0,docs:72,photos:38},
 ];
+const JOB_DETAIL={
+  "002418":{arch:"Studio Vireo Architecture",sup:"T. Nolan",start:"Apr 14, 2026",target:"Sep 30, 2026",retainage:10,scope:"Full gut of a prewar 3-bed co-op — new kitchen, three baths, custom millwork throughout and restored original moldings.",subs:["Apex Plumbing","Volt NYC Electric","Marble & Stone Co.","Precision Millwork"]},
+  "002421":{arch:"Reilly In-House Design",sup:"D. Marsh",start:"May 5, 2026",target:"Aug 22, 2026",retainage:10,scope:"Kitchen and primary-suite renovation with a structural opening, custom cabinetry and natural stone.",subs:["Westchester Plumbing","Hudson Electric","Slabworks"]},
+  "002419":{arch:"Fenwick + Lowe Architects",sup:"—",start:"Jul 1, 2026",target:"Dec 15, 2026",retainage:10,scope:"Full-floor law-office build-out — reception, 14 offices, conference suite and IT room.",subs:["Metro MEP","Acoustech Ceilings","GlassLine Partitions"]},
+  "002415":{arch:"Reilly In-House Design",sup:"D. Marsh",start:"Feb 10, 2026",target:"Jul 15, 2026",retainage:10,scope:"Custom millwork kitchen with butler's pantry and fully integrated appliances.",subs:["Westchester Plumbing","Hudson Electric","Precision Millwork"]},
+  "002422":{arch:"Reilly In-House Design",sup:"D. Marsh",start:"May 20, 2026",target:"Aug 8, 2026",retainage:10,scope:"Primary-bath gut with heated stone floor, steam shower and custom vanity.",subs:["Coastal Plumbing","Hudson Electric","Slabworks"]},
+  "002410":{arch:"Oak & Iron Studio",sup:"T. Nolan",start:"Mar 3, 2026",target:"Sep 12, 2026 (on hold)",retainage:10,scope:"Rear extension adding a family room and mudroom; new foundation and roof tie-in.",subs:["Sound Shore Excavation","Apex Plumbing","Volt NYC Electric"]},
+  "002417":{arch:"Fenwick + Lowe Architects",sup:"J. Reyes",start:"May 12, 2026",target:"Aug 29, 2026",retainage:10,scope:"Retail storefront fit-out — new glazing, sales floor, stockroom and ADA restroom.",subs:["Metro MEP","GlassLine Partitions"]},
+  "002424":{arch:"Studio Vireo Architecture",sup:"T. Nolan",start:"Jun 16, 2026",target:"Feb 2027",retainage:10,scope:"Combination of two adjacent units (9A/9B) into a single residence; full re-layout across the party line.",subs:["Apex Plumbing","Volt NYC Electric","Marble & Stone Co."]},
+  "002408":{arch:"Oak & Iron Studio",sup:"D. Marsh",start:"Sep 2, 2025",target:"Jun 2026 (closeout)",retainage:5,scope:"Whole-home renovation — kitchen, four baths, new mechanicals and refinished floors.",subs:["Sound Shore Plumbing","Hudson Electric","Slabworks"]},
+};
+const SOV_DIV=[["General Conditions",.08],["Demolition",.06],["Framing & Carpentry",.14],["Millwork & Cabinetry",.16],["Plumbing",.09],["Electrical",.09],["HVAC",.07],["Stone & Tile",.12],["Finishes & Paint",.11],["Fixtures & Appliances",.08]];
+const PHASES=[["Preconstruction",0],["Permits & Filing",8],["Demolition",20],["Rough-In · MEP & Framing",38],["Finishes & Millwork",62],["Punch & Closeout",90]];
 const PERMITS=[
   {no:"B00742118",type:"NYC DOB Alt-2",auth:"NYC DOB",job:"Park Ave 12B (#2418)",status:"Issued",statusCls:"green",expires:"Aug 2, 2026",attn:false},
   {no:"WP-26-0914",type:"Building",auth:"Westchester Co.",job:"Scarsdale K&B (#2421)",status:"Issued",statusCls:"green",expires:"Sep 14, 2026",attn:false},
@@ -781,16 +838,102 @@ document.querySelectorAll('[data-filter="jobs"] .ftab').forEach(t=>t.addEventLis
 /* ---------------- JOB MODAL ---------------- */
 function openJob(no){
   const j=JOBS.find(x=>x.no===no);if(!j)return;
+  const short=no.slice(-4), d=JOB_DETAIL[no]||{};
+  const hasJob=s=>(s||"").includes("#"+short);
+
+  // --- financial math (cross-referenced) ---
+  const approvedCO=CO.filter(c=>hasJob(c.job)&&c.status==="Approved").reduce((s,c)=>s+c.amt,0);
+  const pendingCO=CO.filter(c=>hasJob(c.job)&&c.status!=="Approved").reduce((s,c)=>s+c.amt,0);
+  const currentValue=j.contract+approvedCO;
+  const billed=Math.round(currentValue*j.prog/100);
+  const retPct=d.retainage!=null?d.retainage:10;
+  const retainage=Math.round(billed*retPct/100);
+  const arJob=AR.filter(a=>hasJob(a.job)).reduce((s,a)=>s+a.bal,0)||j.ar;
+  const balToFinish=currentValue-billed;
+
+  // --- header ---
+  $("#m-eyebrow").innerHTML=`${pill(j.status,statusCls(j.status))}${pill("COI "+j.coi,coiCls(j.coi))}<span class="mono" style="font-size:10.5px;color:var(--dimmer)">Job #${short}</span>`;
   $("#m-title").textContent=j.name;
-  $("#m-sub").textContent=`Job #${j.no.slice(-4)} · ${j.site}`;
-  $("#m-contract").textContent=money(j.contract);
-  $("#m-billed").textContent=money(Math.round(j.contract*j.prog/100));
-  $("#m-ar").textContent=j.ar?money(j.ar):"$0";
-  $("#m-pct").textContent=j.prog+"%";
-  $("#m-cust").textContent=j.cust;$("#m-site").textContent=j.site;$("#m-pm").textContent=j.pm;
-  $("#m-status").innerHTML=pill(j.status,statusCls(j.status));$("#m-mile").textContent=j.mile;
-  $("#m-coi").innerHTML=pill(j.coi,coiCls(j.coi));$("#m-permit").textContent=j.permit;
-  $("#m-tasks").textContent=j.tasks+" open";$("#m-docs").textContent=j.docs+" files";$("#m-photos").textContent=j.photos+" photos";
+  $("#m-sub").textContent=`${j.cust} · ${j.site}`;
+
+  // --- KPI strip ---
+  const kpi=(l,v,cls)=>`<div class="k"><div class="l">${l}</div><div class="v ${cls||''}">${v}</div></div>`;
+  $("#m-kpis").innerHTML=
+    kpi("Orig. Contract",money(j.contract))+
+    kpi("Approved COs",(approvedCO?"+":"")+money(approvedCO),approvedCO?"pos":"")+
+    kpi("Current Value",money(currentValue))+
+    kpi("Billed to Date",money(billed))+
+    kpi("A/R Balance",arJob?money(arJob):"$0",arJob?"warnv":"")+
+    kpi("% Complete",j.prog+"%");
+
+  // --- financial summary ---
+  $("#m-fin-note").textContent=`retainage held at ${retPct}%`;
+  const fr=(k,v,cls)=>`<div class="finrow ${cls||''}"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+  $("#m-fin").innerHTML=
+    fr("Original contract",money(j.contract))+
+    fr("Approved change orders",(approvedCO?"+ ":"")+money(approvedCO),"sub")+
+    fr("Current contract value",money(currentValue),"total")+
+    fr("Billed to date ("+j.prog+"%)",money(billed))+
+    fr("Retainage held ("+retPct+"%)","("+money(retainage)+")","sub")+
+    fr("Balance to finish",money(balToFinish))+
+    fr("Outstanding A/R",arJob?money(arJob):"$0")+
+    (pendingCO?fr("Pending change orders",money(pendingCO)+" (not in contract)","sub"):"");
+
+  // --- schedule of values / cost breakdown ---
+  $("#m-sov").innerHTML=SOV_DIV.map((dv,i)=>{
+    const budget=Math.round(currentValue*dv[1]);
+    const v=((i*37+parseInt(short))%23)-8;
+    const bp=Math.max(0,Math.min(100,j.prog+v));
+    return `<tr><td class="dv">${dv[0]}</td><td class="amt">${money(budget)}</td><td class="barcell"><div class="prog"><span style="width:${bp}%"></span></div></td><td class="pct">${bp}%</td></tr>`;
+  }).join("");
+
+  // --- change orders ---
+  const cos=CO.filter(c=>hasJob(c.job));
+  $("#m-co-note").textContent=cos.length?cos.length+" on file":"";
+  $("#m-co").innerHTML=cos.length?cos.map(c=>`<div class="co-mini"><span>${pill(c.status,c.cls)} <span class="cd">${c.no} · ${c.desc}</span></span><span class="ca">${money(c.amt)}</span></div>`).join(""):`<div class="mnone">No change orders on this job.</div>`;
+
+  // --- recent documents ---
+  const docs=DOCS.filter(x=>hasJob(x.job));
+  $("#m-doc-note").textContent=j.docs+" files · "+j.photos+" photos";
+  $("#m-doclist").innerHTML=docs.length?docs.map(x=>`<div class="doc-mini"><span class="dn">${x.n}</span><span class="dm">${x.mod} · ${x.size}</span></div>`).join(""):`<div class="mnone">Files live in the SharePoint job folder.</div>`;
+
+  // --- project (side) ---
+  const dl=(k,v)=>`<div class="dl"><span class="k">${k}</span><span>${v}</span></div>`;
+  $("#m-proj").innerHTML=
+    `<p style="font-size:12.5px;color:var(--dim);line-height:1.55;margin-bottom:12px">${d.scope||"—"}</p>`+
+    dl("Client",j.cust)+dl("Site",j.site)+dl("Project Manager",j.pm)+dl("Superintendent",d.sup||"—")+dl("Architect",d.arch||"—");
+
+  // --- schedule / milestones ---
+  let sched=`<div class="dl"><span class="k">Start</span><span>${d.start||"—"}</span></div><div class="dl"><span class="k">Substantial completion</span><span>${d.target||"—"}</span></div><div class="dl" style="border-bottom:0"><span class="k">Next milestone</span><span>${j.mile}</span></div>`;
+  sched+=`<div class="tl" style="margin-top:14px">`+PHASES.map((p,i)=>{
+    const t=p[1], nt=i<PHASES.length-1?PHASES[i+1][1]:101;
+    let cls=j.prog>=nt?"done":(j.prog>=t?"active":"upcoming");
+    const tag=cls==="done"?"Complete":cls==="active"?"In progress":"Upcoming";
+    return `<div class="tl-step ${cls}"><div class="ts-t">${p[0]}</div><div class="ts-d">${tag}</div></div>`;
+  }).join("")+`</div>`;
+  $("#m-sched").innerHTML=sched;
+
+  // --- team & subs ---
+  $("#m-team").innerHTML=
+    dl("Owner / Client",j.cust)+dl("Architect",d.arch||"—")+dl("PM",j.pm)+dl("Superintendent",d.sup||"—")+
+    `<div style="margin-top:12px"><div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer);margin-bottom:8px">Key subcontractors</div><div class="subs">${(d.subs||[]).map(s=>`<span class="sub-chip">${s}</span>`).join("")||'<span class="mnone">—</span>'}</div></div>`;
+
+  // --- compliance ---
+  const perms=PERMITS.filter(p=>hasJob(p.job));
+  const ins=INS.find(x=>hasJob(x.job));
+  let comp="";
+  comp+=`<div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer);margin-bottom:8px">Permits</div>`;
+  comp+=perms.length?perms.map(p=>`<div class="dl"><span class="k">${p.type} · ${p.auth}</span><span>${pill(p.status,p.statusCls)}</span></div>`).join(""):`<div class="mnone" style="margin-bottom:6px">${j.permit}</div>`;
+  comp+=`<div class="mono" style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer);margin:14px 0 8px">Certificate of insurance</div>`;
+  comp+=ins?`<div class="dl"><span class="k">${ins.carrier} · GL ${ins.gl}</span><span>${pill(ins.status,ins.cls)}</span></div><div class="dl" style="border-bottom:0"><span class="k">Expires</span><span>${ins.exp}</span></div>`:`<div class="dl" style="border-bottom:0"><span class="k">Status</span><span>${pill(j.coi,coiCls(j.coi))}</span></div>`;
+  $("#m-comp").innerHTML=comp;
+
+  // --- photos ---
+  const ph=PHOTOS.filter(p=>hasJob(p.pm));
+  $("#m-photo-note").textContent=j.photos+" on file";
+  $("#m-photos-strip").innerHTML=ph.length?ph.map(p=>`<img src="https://images.unsplash.com/photo-${p.b}?w=200&q=55" alt="site"><img src="https://images.unsplash.com/photo-${p.a}?w=200&q=55" alt="site">`).join(""):`<div class="mnone" style="grid-column:1/-1">${j.photos} site photos in the job folder — field crew uploads sync automatically.</div>`;
+
+  $(".modal").scrollTop=0;
   $("#jobModal").classList.add('on');
 }
 function closeJob(){$("#jobModal").classList.remove('on')}
